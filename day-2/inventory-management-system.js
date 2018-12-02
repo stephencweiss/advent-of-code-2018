@@ -7,17 +7,41 @@ let idsArray = [];
 const readPuzzleInput = (file) => {
   // I: A file with sample data
   // O: An array of numbers
-  let readStream = fs.createReadStream(file, {encoding:'utf8'});
+  return new Promise ((resolve, reject) => {
 
-  readStream
+    let readStream = fs.createReadStream(file, {encoding:'utf8'});
+    
+    readStream
     .on('data', function processChunk(chunk) {
       idString += chunk;
     })
     .on('end', () => { 
       idsArray = idString.split('\n')
-      console.log(`The idsArray is --> `, idsArray)
+      resolve(idsArray)
     })
+  })
 }
 
 let filePath = path.join(__dirname, '/puzzle-input')
-readPuzzleInput(filePath)
+Promise.resolve(readPuzzleInput(filePath))
+  .then((idsArray) => console.log('resolved -->', idsArray ))
+
+// for each element in an array,
+// find the counts of twos and threes
+// call check sum
+
+const findRepeatingLetters = (string) => {
+
+}
+
+const calcCheckSum = (obj) => {
+  let reducer = (accumulator, currentValue) => {return accumulator * currentValue}
+  return reducedData = Object.values(obj).reduce(reducer)
+}
+
+let sample = {
+  twos: 3,
+  threes: 4
+}
+
+console.log(`The checkSum is --> `,calcCheckSum(sample));
