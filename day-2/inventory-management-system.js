@@ -68,6 +68,7 @@ const calcCheckSum = (obj) => {
 }
 
 let filePath = path.join(__dirname, '/puzzle-input')
+let samplePath = path.join(__dirname, '/sample-input')
 Promise.resolve(readPuzzleInput(filePath))
   .then((idsArray) => {
     idsArray.map((str) => {
@@ -80,3 +81,48 @@ Promise.resolve(readPuzzleInput(filePath))
     const checkSum = calcCheckSum(repeaterObject)
     console.log(`The checkSum is --> `, checkSum)
   })
+
+
+Promise.resolve(readPuzzleInput(samplePath))
+  // .then(idsArray => {})
+
+// find closestNeighbor
+const findCloseId = (arr) => {
+  // I: An array
+  // O: The letters that two elements *share* when they differ by only one element overall
+  // for each el
+  for (let i = 0; i < arr.length - 1; i += 1) {
+    // look at each element *after*
+    let targetId = arr[i];
+    for (let j = i + 1; j < arr.length; j += 1) {
+      let comparisonId = arr[j];
+      
+      // see if the characters match
+      // when they *do match* add it to a simSet
+      // when they *do not* match add it to a diffSet
+      // if diffSet.length > 1
+      // break
+    }
+  }
+}
+
+const compareStrings = (strA, strB) => {
+  // I: Takes in two strings
+  // O: The similarities and differences of the two strings (or null if there is more than one difference)
+  const simSet = []
+  const diffSet = []
+  for (let i = 0; i < Math.min(strA.length, strB.length); i += 1) {
+    if (strA[i] === strB[i]) {
+      simSet.push(strA[i])
+    } else {
+      diffSet.push(strA[i])
+      if (diffSet.length > 1) {
+        return null;
+      }
+    }
+  }
+  return simSet;
+}
+
+console.log(compareStrings('aabcde', 'adbcde')) // [a,b,c,d,e]
+console.log(compareStrings('eebcde', 'adbcde')) // null
