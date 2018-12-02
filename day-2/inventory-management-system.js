@@ -3,6 +3,10 @@ const path = require ('path');
 
 let idString = '';
 let idsArray = [];
+let repeaterObject = {
+  twos: 0,
+  threes: 0,
+}
 
 const readPuzzleInput = (file) => {
   // I: A file with sample data
@@ -22,16 +26,40 @@ const readPuzzleInput = (file) => {
   })
 }
 
-let filePath = path.join(__dirname, '/puzzle-input')
-Promise.resolve(readPuzzleInput(filePath))
-  .then((idsArray) => console.log('resolved -->', idsArray ))
+const findCharFrequency = (string) => {
+  // I: A string
+  // O: Character frequency of the string
+  let frequency = {}
+  for (let i = 0; i < string.length; i++) {
+    let curChar = string[i]
+    if (frequency[curChar]){
+      frequency[curChar] += 1;
+    } else {
+      frequency[curChar] = 1;
+    }
+  }
+  return frequency
+}
 
-// for each element in an array,
-// find the counts of twos and threes
-// call check sum
-
-const findRepeatingLetters = (string) => {
-
+const updateGlobalRepeatCount = (frequency) => {
+  // I: A string's character frequency
+  // O: Increments a global var, repeaterObject, if a letter is repeated two or three times
+  let keys = Object.keys(frequency)
+  let repeatPresent = {
+    twos: false,
+    threes: false
+  }
+  for (let j = 0; j < keys.length; j++) {
+    if (frequency[keys[j]] === 2) {
+      repeatPresent.twos = true;
+    }
+    if (frequency[keys[j]] === 3) {
+      repeatPresent.threes = true;
+    }
+  }
+  if (repeatPresent.twos === true) { repeaterObject.twos += 1 }
+  if (repeatPresent.threes === true) { repeaterObject.threes += 1 }
+  
 }
 
 const calcCheckSum = (obj) => {
@@ -39,9 +67,16 @@ const calcCheckSum = (obj) => {
   return reducedData = Object.values(obj).reduce(reducer)
 }
 
-let sample = {
-  twos: 3,
-  threes: 4
-}
-
-console.log(`The checkSum is --> `,calcCheckSum(sample));
+let filePath = path.join(__dirname, '/puzzle-input')
+Promise.resolve(readPuzzleInput(filePath))
+  .then((idsArray) => {
+    idsArray.map((str) => {
+      let freq = findCharFrequency(str);
+      updateGlobalRepeatCount(freq);
+    });
+    return repeaterObject;
+  })
+  .then((repeaterObject) => {
+    const checkSum = calcCheckSum(repeaterObject)
+    console.log(`The checkSum is --> `, checkSum)
+  })
