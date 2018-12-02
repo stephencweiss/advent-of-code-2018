@@ -1,12 +1,14 @@
 const fs = require ('fs');
 const path = require ('path');
 
+let filePath = path.join(__dirname, '/puzzle-input');
+let samplePath = path.join(__dirname, '/sample-input');
 let idString = '';
 let idsArray = [];
 let repeaterObject = {
   twos: 0,
   threes: 0,
-}
+};
 
 const readPuzzleInput = (file) => {
   // I: A file with sample data
@@ -24,7 +26,7 @@ const readPuzzleInput = (file) => {
       resolve(idsArray)
     })
   })
-}
+};
 
 const findCharFrequency = (string) => {
   // I: A string
@@ -39,7 +41,7 @@ const findCharFrequency = (string) => {
     }
   }
   return frequency
-}
+};
 
 const updateGlobalRepeatCount = (frequency) => {
   // I: A string's character frequency
@@ -60,51 +62,28 @@ const updateGlobalRepeatCount = (frequency) => {
   if (repeatPresent.twos === true) { repeaterObject.twos += 1 }
   if (repeatPresent.threes === true) { repeaterObject.threes += 1 }
   
-}
+};
 
 const calcCheckSum = (obj) => {
   let reducer = (accumulator, currentValue) => {return accumulator * currentValue}
   return reducedData = Object.values(obj).reduce(reducer)
-}
+};
 
-let filePath = path.join(__dirname, '/puzzle-input')
-let samplePath = path.join(__dirname, '/sample-input')
-Promise.resolve(readPuzzleInput(filePath))
-  .then((idsArray) => {
-    idsArray.map((str) => {
-      let freq = findCharFrequency(str);
-      updateGlobalRepeatCount(freq);
-    });
-    return repeaterObject;
-  })
-  .then((repeaterObject) => {
-    const checkSum = calcCheckSum(repeaterObject)
-    console.log(`The checkSum is --> `, checkSum)
-  })
-
-
-Promise.resolve(readPuzzleInput(samplePath))
-  // .then(idsArray => {})
-
-// find closestNeighbor
 const findCloseId = (arr) => {
   // I: An array
   // O: The letters that two elements *share* when they differ by only one element overall
-  // for each el
+  // for each el; String if nothing found.
   for (let i = 0; i < arr.length - 1; i += 1) {
-    // look at each element *after*
     let targetId = arr[i];
     for (let j = i + 1; j < arr.length; j += 1) {
       let comparisonId = arr[j];
-      
-      // see if the characters match
-      // when they *do match* add it to a simSet
-      // when they *do not* match add it to a diffSet
-      // if diffSet.length > 1
-      // break
+      if (compareStrings(targetId, comparisonId)){
+        return (compareStrings(targetId, comparisonId).join(''))
+      }
     }
   }
-}
+  return 'No Near Matches Found'
+};
 
 const compareStrings = (strA, strB) => {
   // I: Takes in two strings
@@ -122,7 +101,21 @@ const compareStrings = (strA, strB) => {
     }
   }
   return simSet;
-}
+};
 
-console.log(compareStrings('aabcde', 'adbcde')) // [a,b,c,d,e]
-console.log(compareStrings('eebcde', 'adbcde')) // null
+// Calculate
+Promise.resolve(readPuzzleInput(filePath))
+  .then((idsArray) => {
+    idsArray.map((str) => {
+      let freq = findCharFrequency(str);
+      updateGlobalRepeatCount(freq);
+    });
+    return repeaterObject;
+  })
+  .then((repeaterObject) => {
+    const checkSum = calcCheckSum(repeaterObject)
+    console.log(`The checkSum is --> `, checkSum)
+  })
+  .then(() => {return findCloseId(idsArray)})
+  .then(result => console.log(`The shared characters are -->`, result))
+
