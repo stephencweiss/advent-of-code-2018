@@ -14,7 +14,7 @@ let width = 1000;
 // General Variables
 let idString = '';
 let idsArray = [];
-let canvas;
+let canvas = [];
 let designOverlapSqInches = 0;
 let pointsOfOverlap = [];
 
@@ -36,9 +36,15 @@ const readPuzzleInput = (file) => {
   })
 };
 
-const createCanvas = (height, width) => {
-  return new Array(height).fill(new Array(width).fill(0)) 
-  // return canvas;
+const createCanvas = (height, width, canvas) => {
+  while (canvas.length < height) {
+    let row = []
+    while (row.length < width) {
+      row.push(0)
+    }
+    canvas.push(row)
+  }
+  return canvas
 }
 
 const processElement = (element) => {
@@ -95,7 +101,7 @@ const updateCanvas = (el, canvas) => {
 Promise.resolve(readPuzzleInput(filePath))
   .then(() => {
     // create canvas to mark our designs on
-    return canvas = createCanvas(height, width)
+    return canvas = createCanvas(height, width, canvas)
   })
   .then(() => {
     // Update the canvas with our designs
