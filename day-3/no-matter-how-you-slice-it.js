@@ -1,12 +1,22 @@
 const fs = require ('fs');
 const path = require ('path');
 
-let filePath = path.join(__dirname, '/puzzle-input');
+// Test Variables
 let samplePath = path.join(__dirname, '/sample-input');
+let sampleHeight = 8;
+let sampleWidth = 8;
+
+// Final Variables
+let filePath = path.join(__dirname, '/puzzle-input');
+let height = 1000;
+let width = 1000;
+
+// General Variables
 let idString = '';
 let idsArray = [];
-let canvas = [];
+let canvas;
 let designOverlapSqInches = 0;
+let pointsOfOverlap = [];
 
 const readPuzzleInput = (file) => {
   // I: A file with sample data
@@ -26,32 +36,12 @@ const readPuzzleInput = (file) => {
   })
 };
 
-const createCanvas = (height, width, canvas) => {
-  while (canvas.length < height) {
-    let row = []
-    while (row.length < width) {
-      row.push(0)
-    }
-    canvas.push(row)
-  }
-  return canvas
+const createCanvas = (height, width) => {
+  return new Array(height).fill(new Array(width).fill(0)) 
+  // return canvas;
 }
 
-// create input array
-readPuzzleInput(samplePath)
-  .then((canvas) => {
-    // create canvas
-    let height = 1000;
-    let width = 1000;
-    createCanvas(height, width, canvas)
-  })
-  // for each element
-  .then((idsArray) => {
-    idsArray.forEach(updateCanvas(el, canvas))
-    })
-
 const processElement = (element) => {
-  debugger;
   let elArray = element.split(' ');
   let structuredEl = {
     id: 0,
@@ -62,32 +52,56 @@ const processElement = (element) => {
   }
   structuredEl.id = elArray[0].replace('#','');
   let locations = elArray[2].split(',');
-  structuredEl.xOffset = locations[0];
-  structuredEl.yOffset = locations[1];
+  structuredEl.xOffset = Number(locations[0]);
+  structuredEl.yOffset = Number(locations[1].split(":")[0]);
   let designDimensions = elArray[3].split('x');
-  structuredEl.designWidth = designDimensions[0]
-  structuredEl.desightHeight = designDimensions[1]
+  structuredEl.designWidth = Number(designDimensions[0])
+  structuredEl.desightHeight = Number(designDimensions[1])
   return structuredEl;
 }
 
 const updateCanvas = (el, canvas) => {
-  processElement(el)
-  // update the canvas (an single design, canvas)
-    // if the canvas is empty (0s) - update with the id
-    // if the canvas is not empty - update with x
-      // add 1 to designOverlapSqInches count
+  /**
+   * update the canvas (an single design, canvas)
+   * if the canvas is empty (0s) - update with the id
+   * if the canvas is not empty - update with x
+   * Add 1 to designOverlapSqInches count
+   */
+  let structuredEl = processElement(el);
+
+  for (let designRow = 0; designRow < structuredEl.desightHeight; designRow += 1) {
+    for (let designCol = 0; designCol < structuredEl.designWidth; designCol += 1) {
+      let currentRow = structuredEl.yOffset + designRow
+      let currentCol = structuredEl.xOffset + designCol;
+      if (canvas[currentRow][currentCol] === 0) {
+        // If it's blank, mark it with the id
+        canvas[currentRow][currentCol] = structuredEl.id;
+      } 
+      else if (canvas[currentRow][currentCol] === 'x') {
+        // If it's already duplicated, move on
+        break;
+      }
+      else {
+        // If it's not 0 or x, mark it with an x and increment overlap counter
+        canvas[currentRow][currentCol] = 'x';
+        pointsOfOverlap.push({Row:currentRow, Col:currentCol})
+        designOverlapSqInches += 1;
+      }
+    }
+  }
 }
 
-console.log(processElement('#1 @ 1,3: 4x4'));
-
-  
-// return overall count
-
-// debugger;
-// let test = new Array(new Array(3), new Array(3), new Array(3));
-// console.log(`The test is --> `, test)
-
-debugger;
-
-console.log(`The canvas is now --> `, canvas)
-
+// create an input array  
+Promise.resolve(readPuzzleInput(filePath))
+  .then(() => {
+    // create canvas to mark our designs on
+    return canvas = createCanvas(height, width)
+  })
+  .then(() => {
+    // Update the canvas with our designs
+    idsArray.forEach((el) => updateCanvas(el, canvas))
+  })
+  .then(() => {
+    // Print the number of overlapping squares
+    console.log(`The total overlap is --> `, designOverlapSqInches)
+  });
