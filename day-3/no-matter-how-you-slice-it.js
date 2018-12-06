@@ -1,5 +1,6 @@
 const fs = require ('fs');
 const path = require ('path');
+const chalk = require('chalk');
 
 // Test Variables
 let samplePath = path.join(__dirname, '/sample-input');
@@ -85,13 +86,16 @@ const updateCanvas = (el, canvas) => {
       } 
       else if (canvas[currentRow][currentCol] === 'x') {
         // If it's already duplicated, move on
-        break;
+        continue;
       }
-      else {
-        // If it's not 0 or x, mark it with an x and increment overlap counter
+      else if (canvas[currentRow][currentCol] !== 0 && canvas[currentRow][currentCol] !== 'x') {
+        // If it's the first time it's a duplicate, increment overlap counter
         canvas[currentRow][currentCol] = 'x';
         pointsOfOverlap.push({Row:currentRow, Col:currentCol})
         designOverlapSqInches += 1;
+      }
+      else {
+        console.log(chalk.red('Uh oh! Unhandled case!'))
       }
     }
   }
